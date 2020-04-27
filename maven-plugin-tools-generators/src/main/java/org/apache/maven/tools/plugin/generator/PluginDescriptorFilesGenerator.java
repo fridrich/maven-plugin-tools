@@ -209,12 +209,7 @@ public class PluginDescriptorFilesGenerator implements Generator {
      */
     private static String getTextValue(DescriptorType type, boolean containsXhtmlValue, String text) {
         final String xhtmlText;
-        if (!containsXhtmlValue) // text comes from legacy extractor
-        {
-            xhtmlText = GeneratorUtils.makeHtmlValid(text);
-        } else {
-            xhtmlText = text;
-        }
+        xhtmlText = text;
         if (type != DescriptorType.XHTML) {
             return new HtmlToPlainTextConverter().convert(text);
         } else {
