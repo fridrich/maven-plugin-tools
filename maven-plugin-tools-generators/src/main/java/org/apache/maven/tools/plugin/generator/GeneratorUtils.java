@@ -22,9 +22,6 @@ import javax.swing.text.MutableAttributeSet;
 import javax.swing.text.html.HTML;
 import javax.swing.text.html.HTMLEditorKit;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -43,7 +40,6 @@ import org.apache.maven.tools.plugin.util.PluginUtils;
 import org.codehaus.plexus.component.repository.ComponentDependency;
 import org.codehaus.plexus.util.StringUtils;
 import org.codehaus.plexus.util.xml.XMLWriter;
-import org.w3c.tidy.Tidy;
 
 /**
  * Convenience methods to play with Maven plugins.
@@ -215,52 +211,6 @@ public final class GeneratorUtils {
         matcher.appendTail(decoded);
 
         return decoded.toString();
-    }
-
-    /**
-     * Fixes some javadoc comment to become a valid XHTML snippet.
-     *
-     * @param description Javadoc description with HTML tags, may be <code>null</code>.
-     * @return The description with valid XHTML tags, never <code>null</code>.
-     * @deprecated Redundant for java extractor
-     */
-    @Deprecated
-    public static String makeHtmlValid(String description) {
-
-        if (description == null || description.isEmpty()) {
-            return "";
-        }
-
-        String commentCleaned = decodeJavadocTags(description);
-
-        // Using jTidy to clean comment
-        Tidy tidy = new Tidy();
-        tidy.setDocType("loose");
-        tidy.setXHTML(true);
-        tidy.setXmlOut(true);
-        tidy.setInputEncoding("UTF-8");
-        tidy.setOutputEncoding("UTF-8");
-        tidy.setMakeClean(true);
-        tidy.setNumEntities(true);
-        tidy.setQuoteNbsp(false);
-        tidy.setQuiet(true);
-        tidy.setShowWarnings(true);
-
-        ByteArrayOutputStream out = new ByteArrayOutputStream(commentCleaned.length() + 256);
-        tidy.parse(new ByteArrayInputStream(commentCleaned.getBytes(StandardCharsets.UTF_8)), out);
-        commentCleaned = new String(out.toByteArray(), StandardCharsets.UTF_8);
-
-        if (commentCleaned == null || commentCleaned.isEmpty()) {
-            return "";
-        }
-
-        // strip the header/body stuff
-        String ls = System.getProperty("line.separator");
-        int startPos = commentCleaned.indexOf("<body>" + ls) + 6 + ls.length();
-        int endPos = commentCleaned.indexOf(ls + "</body>");
-        commentCleaned = commentCleaned.substring(startPos, endPos);
-
-        return commentCleaned;
     }
 
     /**
